@@ -7,8 +7,8 @@ body {
 }
 
 #canvas {
-	width: 1920px;
-	height: 1080px;
+	width: 10000px;
+	height: 10000px;
 	background-color: #cccccc;
 }
 
@@ -30,7 +30,7 @@ body {
 }
 
 #canvas path.active {
-	stroke: #8565c4;
+	stroke: red;
 }
 
 #tooltip {
