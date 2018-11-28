@@ -24,6 +24,10 @@ body {
 	opacity: 0.5;
 }
 
+#canvas path.active {
+	stroke: #8565c4;
+}
+
 #tooltip {
 	padding: 4px 8px 4px 8px;
 	background-color: #eeeeee;
