@@ -24,6 +24,11 @@ body {
 	opacity: 0.5;
 }
 
+#canvas .gate[this-state="true"] {
+	-webkit-filter: url("../img/filter.svg#highlight");
+	filter: url("../img/filter.svg#highlight");
+}
+
 #canvas path.active {
 	stroke: #8565c4;
 }
