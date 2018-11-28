@@ -55,6 +55,14 @@ body {
 	background-color: #cccccc;
 }
 
+#canvas .gate-temporary {
+	opacity: 0.3;
+}
+
+#canvas .gate:hover {
+	cursor: pointer;
+}
+
 #canvas .gate.selected {
 	opacity: 0.5;
 }
