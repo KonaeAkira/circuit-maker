@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+	<head>
+		<meta charset="utf-8"/>
+		<link href="css/style.css" rel="stylesheet" type="text/css"/>
+		<script src="https://d3js.org/d3.v5.min.js"></script>
+		<script src="js/jquery-3.3.1.js" type="text/javascript"></script>
+		<script src="js/script.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<div id="tooltip">
+			x=<mouse-x>n/a</mouse-x> y=<mouse-y>n/a</mouse-y>
+		</div>
+		<div id="container">
+			<svg id="canvas">
+			  	<defs>
+					<pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+				  		<path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5"/>
+					</pattern>
+					<pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+				  		<rect width="80" height="80" fill="url(#smallGrid)"/>
+				  		<path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1"/>
+					</pattern>
+				</defs>
+				<rect width="100%" height="100%" fill="url(#grid)"/>
+			</svg>
+			<div id="panel">
+				<div class="gate-container selected" gate-type="or">
+					<div class="nametag">OR</div>
+					<img src="img/or.png"/>
+				</div>
+				<div class="gate-container unselected" gate-type="nor">
+					<div class="nametag">NOR</div>
+					<img src="img/nor.png"/>
+				</div>
+				<div class="gate-container unselected" gate-type="and">
+					<div class="nametag">AND</div>
+					<img src="img/and.png"/>
+				</div>
+				<div class="gate-container unselected" gate-type="nand">
+					<div class="nametag">NAND</div>
+					<img src="img/nand.png"/>
+				</div>
+				<div class="gate-container unselected" gate-type="xor">
+					<div class="nametag">XOR</div>
+					<img src="img/xor.png"/>
+				</div>
+				<div class="gate-container unselected" gate-type="xnor">
+					<div class="nametag">XNOR</div>
+					<img src="img/xnor.png"/>
+				</div>
+				<div class="gate-container unselected" gate-type="not">
+					<div class="nametag">NOT</div>
+					<img src="img/not.png"/>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
