@@ -44,7 +44,7 @@ function scan(){
 	});
 	$('#canvas .gate').each(function(index){
 		if ($(this).attr('gate-type') != 'inp'){
-			$(this).attr('this-state', $(this).attr('next-state') == '1');
+			$(this).attr('this-state', $(this).attr('next-state') == '1' || $(this).attr('next-state') == 'true');
 		}
 	});
 	$('#canvas path').each(function(index){
