@@ -54,3 +54,7 @@ body {
 #panel .gate-container.selected {
 	background-color: #cccccc;
 }
+
+#canvas .gate.selected {
+	opacity: 0.5;
+}
