@@ -10,56 +10,54 @@
 		<div id="tooltip">
 			x=<mouse-x>n/a</mouse-x> y=<mouse-y>n/a</mouse-y>
 		</div>
-		<div id="container">
-			<svg id="canvas">
-			  	<defs>
-					<pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
-				  		<path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5"/>
-					</pattern>
-					<pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-				  		<rect width="80" height="80" fill="url(#smallGrid)"/>
-				  		<path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1"/>
-					</pattern>
-				</defs>
-				<rect id="background" width="100%" height="100%" fill="url(#grid)"/>
-			</svg>
-			<div id="panel">
-				<div class="gate-container unselected" gate-type="or">
-					<div class="nametag">OR</div>
-					<img src="img/or.svg"/>
-				</div>
-				<div class="gate-container unselected" gate-type="nor">
-					<div class="nametag">NOR</div>
-					<img src="img/nor.svg"/>
-				</div>
-				<div class="gate-container unselected" gate-type="and">
-					<div class="nametag">AND</div>
-					<img src="img/and.svg"/>
-				</div>
-				<div class="gate-container unselected" gate-type="nand">
-					<div class="nametag">NAND</div>
-					<img src="img/nand.svg"/>
-				</div>
-				<div class="gate-container unselected" gate-type="xor">
-					<div class="nametag">XOR</div>
-					<img src="img/xor.svg"/>
-				</div>
-				<div class="gate-container unselected" gate-type="xnor">
-					<div class="nametag">XNOR</div>
-					<img src="img/xnor.svg"/>
-				</div>
-				<div class="gate-container unselected" gate-type="not">
-					<div class="nametag">NOT</div>
-					<img src="img/not.svg"/>
-				</div>
-				<div class="gate-container unselected" gate-type="inp">
-					<div class="nametag">INP</div>
-					<img src="img/inp.svg"/>
-				</div>
-				<div class="gate-container unselected" gate-type="out">
-					<div class="nametag">OUT</div>
-					<img src="img/out.svg"/>
-				</div>
+		<svg id="canvas">
+		  	<defs>
+				<pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+			  		<path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5"/>
+				</pattern>
+				<pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+			  		<rect width="80" height="80" fill="url(#smallGrid)"/>
+			  		<path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1"/>
+				</pattern>
+			</defs>
+			<rect id="background" width="100%" height="100%" fill="url(#grid)"/>
+		</svg>
+		<div id="panel">
+			<div class="gate-container unselected" gate-type="or">
+				<div class="nametag">OR</div>
+				<img src="img/or.svg"/>
+			</div>
+			<div class="gate-container unselected" gate-type="nor">
+				<div class="nametag">NOR</div>
+				<img src="img/nor.svg"/>
+			</div>
+			<div class="gate-container unselected" gate-type="and">
+				<div class="nametag">AND</div>
+				<img src="img/and.svg"/>
+			</div>
+			<div class="gate-container unselected" gate-type="nand">
+				<div class="nametag">NAND</div>
+				<img src="img/nand.svg"/>
+			</div>
+			<div class="gate-container unselected" gate-type="xor">
+				<div class="nametag">XOR</div>
+				<img src="img/xor.svg"/>
+			</div>
+			<div class="gate-container unselected" gate-type="xnor">
+				<div class="nametag">XNOR</div>
+				<img src="img/xnor.svg"/>
+			</div>
+			<div class="gate-container unselected" gate-type="not">
+				<div class="nametag">NOT</div>
+				<img src="img/not.svg"/>
+			</div>
+			<div class="gate-container unselected" gate-type="inp">
+				<div class="nametag">INP</div>
+				<img src="img/inp.svg"/>
+			</div>
+			<div class="gate-container unselected" gate-type="out">
+				<div class="nametag">OUT</div>
+				<img src="img/out.svg"/>
 			</div>
 		</div>
 	</body>
