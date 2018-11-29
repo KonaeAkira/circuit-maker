@@ -9,94 +9,6 @@ var clickY, clickX;
 const gateWidth = 62;
 const gateHeight = 34;
 
-var alertTimeout;
-
-function alertError(message){
-	clearTimeout(alertTimeout);
-	$('#alert-box').attr('class', 'error-box');
-	$('#alert-box').html('<b>Error:</b> ' + message);
-	$('#alert-box').css('display', 'block');
-	alertTimeout = setTimeout(function(){
-		$('#alert-box').css('display', 'none');
-	}, 3000);
-}
-
-function alertMessage(message){
-	clearTimeout(alertTimeout);
-	$('#alert-box').attr('class', 'message-box');
-	$('#alert-box').html('<b>Note:</b> ' + message);
-	$('#alert-box').css('display', 'block');
-	alertTimeout = setTimeout(function(){
-		$('#alert-box').css('display', 'none');
-	}, 3000);
-}
-
-var scanner;
-var scannerRunning = false;
-
-function startScanner(){
-	if (scannerRunning == false){
-		scannerRunning = true;
-		var refreshRate = $('#refresh-rate').val();
-		$('#refresh-rate').attr('disabled','disabled');
-		scanner = setInterval(scan, 1000 / refreshRate);
-		alertMessage('Scanner is now running');
-	}
-}
-
-function stopScanner(){
-	clearInterval(scanner);
-	$('#refresh-rate').removeAttr('disabled');
-	scannerRunning = false;
-	alertMessage('Scanner has stopped');
-}
-
-function probe(gateID){ // get current output of gate
-	if (gateID == 0) {
-		return false;
-	} else {
-		return $('#canvas .gate[gate-id="' + gateID + '"]').attr('this-state') == 'true';
-	}
-}
-
-function scan(){ // go one iteration forward in the simulation
-	$('#canvas .gate').each(function(index){
-		var type = $(this).attr('gate-type');
-		var ID = $(this).attr('gate-id');
-		var inputOne = $(this).attr('input-1');
-		var inputTwo = $(this).attr('input-2');
-		if (type == 'or'){
-			$(this).attr('next-state', probe(inputOne) | probe(inputTwo));
-		} else if (type == 'nor'){
-			$(this).attr('next-state', !probe(inputOne) & !probe(inputTwo));
-		} else if (type == 'and'){
-			$(this).attr('next-state', probe(inputOne) & probe(inputTwo));
-		} else if (type == 'nand'){
-			$(this).attr('next-state', !(probe(inputOne) & probe(inputTwo)));
-		} else if (type == 'xor'){
-			$(this).attr('next-state', probe(inputOne) ^ probe(inputTwo));
-		} else if (type == 'xnor'){
-			$(this).attr('next-state', !probe(inputOne) ^ probe(inputTwo));
-		} else if (type == 'not'){
-			$(this).attr('next-state', !probe(inputOne));
-		} else if (type == 'out'){
-			$(this).attr('next-state', probe(inputOne));
-		}
-	});
-	$('#canvas .gate').each(function(index){
-		if ($(this).attr('gate-type') != 'inp'){
-			$(this).attr('this-state', $(this).attr('next-state') == '1' || $(this).attr('next-state') == 'true');
-		}
-	});
-	$('#canvas path').each(function(index){
-		if (probe($(this).attr('input'))){
-			$(this).addClass('active');
-		} else {
-			$(this).removeClass('active');
-		}
-	});
-}
-
 function selectType(caller){
 	$('.gate-container.selected').removeClass('selected').addClass('unselected');
 	$(caller).removeClass('unselected').addClass('selected');
@@ -208,23 +120,10 @@ $(document).ready(function(){
 	$('#panel .gate-container').click(function(){
 		selectType(this);
 	});
-	
-	$(document).keydown(function(event){
-     	if (event.key == 'Escape'){
-        	clearSelectedType();
-        } else if (event.key == 'Shift'){
-        	modifyFlag = true;
-        }
-    });
     
-    $(document).keyup(function(event){
-    	if (event.key == 'Shift'){
-    		modifyFlag = false;
-    	}
-    });
-    
+	// draw a preview of a gate on the canvas
     $('#canvas').mousemove(function(event){
-    	if (selectedType != 'none'){ // draw a preview of a gate on the canvas
+    	if (selectedType != 'none'){ 
     		$('#canvas .gate-temporary').remove();
     		d3.select(this).append('image')
 				.attr('class', 'gate-temporary')
@@ -236,8 +135,9 @@ $(document).ready(function(){
     	}
     });
     
+	// draw a new gate on the canvas
 	$('#canvas').click(function(event){
-		if (selectedType != 'none'){ // draw a new gate on the canvas
+		if (selectedType != 'none'){
 			var gate = d3.select(this).append('image')
 				.attr('href', 'img/' + selectedType + '.svg')
 				.attr('class', 'gate unselected no-contextmenu')
@@ -254,14 +154,44 @@ $(document).ready(function(){
 		}
 	});
 	
-	$('#canvas').on('dragstart', function(event){ // prevent default drag behaviour on the canvas
+	// prevent dragging
+	$('*').on('dragstart', function(event){
 		event.preventDefault();
 	});
 	
+	// prevent context menu
+	$('*').on('contextmenu', function(event) {
+		event.preventDefault();
+	});
+	
+	// clear selected type events
+	$(document).keydown(function(event){
+     	if (event.key == 'Escape'){
+        	clearSelectedType();
+        }
+    });
+	
+	// clear selected gate events
 	$('#canvas #background').click(function(){ // clear selected gate when clicking on the background
 		clearSelectedGate();
 	});
+	$('*').on('contextmenu', function(event) {
+		clearSelectedType();
+	});
 	
+	// modifier key events
+	$(document).keydown(function(event){
+     	if (event.key == 'Shift'){
+        	modifyFlag = true;
+        }
+    });
+    $(document).keyup(function(event){
+    	if (event.key == 'Shift'){
+    		modifyFlag = false;
+    	}
+    });
+	
+	// mouse events for gates on canvas
 	$('#canvas').on('mousedown', 'image', function(event){
 		switch (event.which) {
 			case 1: // left mouse
@@ -297,12 +227,7 @@ $(document).ready(function(){
 		}
 	});
 	
-	$(document).on('contextmenu', function(event) { // prevent contextmenu for specific elements
-		if ($(event.target).hasClass('no-contextmenu')) {
-			event.preventDefault();
-		}
-	});
-	
+	// scanner control ui updater
 	$('#refresh-rate-display').text($('#refresh-rate').val() + 'Hz');
 	$('#refresh-rate').on('input', function(){
 		$('#refresh-rate-display').text(this.value + 'Hz');
