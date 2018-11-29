@@ -4,12 +4,19 @@
 
 body {
 	margin: 0;
+	overflow: hidden;
 }
 
 #canvas {
-	width: 10000px;
-	height: 10000px;
+	width: 32768px;
+	height: 32768px;
 	background-color: #cccccc;
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 #canvas .gate-temporary {
