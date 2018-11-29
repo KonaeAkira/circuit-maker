@@ -9,6 +9,18 @@ var clickY, clickX;
 const gateWidth = 62;
 const gateHeight = 34;
 
+var alertTimeout;
+
+function alertError(message){
+	clearTimeout(alertTimeout);
+	$('#alert-box').attr('class', 'error-box');
+	$('#alert-box').html('<b>Error</b>: ' + message);
+	$('#alert-box').css('display', 'block');
+	alertTimeout = setTimeout(function(){
+		$('#alert-box').css('display', 'none');
+	}, 3000);
+}
+
 var scanner = setInterval(function(){
 	scan();
 }, 1);
@@ -85,10 +97,12 @@ function connectGates(tx, rx){
 	var y2 = parseInt($(rx).attr('y')) + gateHeight / 2;
 	
 	if (rxType == 'inp') {
+		alertError('Target gate has no inputs');
 		console.log('gate ' + rxID + ' has no inputs');
 		return;
 	} else if (rxType == 'not' || rxType == 'out') {
 		if ($(rx).attr('input-1') != 0) {
+			alertError('Target gate has no free inputs');
 			console.log('input of gate ' + rxID + ' is full');
 			return;
 		}
@@ -101,6 +115,7 @@ function connectGates(tx, rx){
 			$(rx).attr('input-2', txID);
 			y2 = parseInt($(rx).attr('y')) + gateHeight * 0.7;
 		} else {
+			alertError('Target gate has no free inputs');
 			console.log('input of gate ' + rxID + ' is full');
 			return;
 		}
