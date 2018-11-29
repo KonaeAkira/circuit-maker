@@ -14,16 +14,42 @@ var alertTimeout;
 function alertError(message){
 	clearTimeout(alertTimeout);
 	$('#alert-box').attr('class', 'error-box');
-	$('#alert-box').html('<b>Error</b>: ' + message);
+	$('#alert-box').html('<b>Error:</b> ' + message);
 	$('#alert-box').css('display', 'block');
 	alertTimeout = setTimeout(function(){
 		$('#alert-box').css('display', 'none');
 	}, 3000);
 }
 
-var scanner = setInterval(function(){
-	scan();
-}, 1);
+function alertMessage(message){
+	clearTimeout(alertTimeout);
+	$('#alert-box').attr('class', 'message-box');
+	$('#alert-box').html('<b>Note:</b> ' + message);
+	$('#alert-box').css('display', 'block');
+	alertTimeout = setTimeout(function(){
+		$('#alert-box').css('display', 'none');
+	}, 3000);
+}
+
+var scanner;
+var scannerRunning = false;
+
+function startScanner(){
+	if (scannerRunning == false){
+		scannerRunning = true;
+		var refreshRate = $('#refresh-rate').val();
+		$('#refresh-rate').attr('disabled','disabled');
+		scanner = setInterval(scan, 1000 / refreshRate);
+		alertMessage('Scanner is now running');
+	}
+}
+
+function stopScanner(){
+	clearInterval(scanner);
+	$('#refresh-rate').removeAttr('disabled');
+	scannerRunning = false;
+	alertMessage('Scanner has stopped');
+}
 
 function probe(gateID){ // get current output of gate
 	if (gateID == 0) {
@@ -275,6 +301,10 @@ $(document).ready(function(){
 		if ($(event.target).hasClass('no-contextmenu')) {
 			event.preventDefault();
 		}
+	});
+	
+	$('#refresh-rate').on('input', function(){
+		$('#refresh-rate-display').text(this.value + 'Hz');
 	});
 	
 });
