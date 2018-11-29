@@ -303,6 +303,7 @@ $(document).ready(function(){
 		}
 	});
 	
+	$('#refresh-rate-display').text($('#refresh-rate').val() + 'Hz');
 	$('#refresh-rate').on('input', function(){
 		$('#refresh-rate-display').text(this.value + 'Hz');
 	});
