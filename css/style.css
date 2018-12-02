@@ -1,5 +1,11 @@
 * {
 	font-family: "Open Sans", "Helvetica Neue", Arial, Verdana, Geneva, sans-serif;
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 body {
@@ -11,15 +17,9 @@ body {
 	width: 32768px;
 	height: 32768px;
 	background-color: #cccccc;
-	-webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
 }
 
-#canvas .gate-temporary {
+#canvas .gate-temp {
 	opacity: 0.3;
 }
 
@@ -31,7 +31,7 @@ body {
 	opacity: 0.5;
 }
 
-#canvas .gate[this-state="true"] {
+#canvas .gate[state="true"] {
 	-webkit-filter: url("../img/filter.svg#highlight");
 	filter: url("../img/filter.svg#highlight");
 }
