@@ -36,6 +36,10 @@ body {
 	filter: url("../img/filter.svg#highlight");
 }
 
+#canvas .wire:hover {
+	cursor: pointer;
+}
+
 #canvas path.active {
 	stroke: red;
 }

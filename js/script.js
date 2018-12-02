@@ -1,143 +1,162 @@
 var selectedType = 'none';
-var selectedGate = 0;
 var globalID = 0;
 var modifyFlag = false;
 
-var clicked = false;
-var clickY, clickX;
+var curPath = null;
+var curX, curY;
 
 const gateWidth = 62;
 const gateHeight = 34;
 
-function selectType(caller){
+function selectType(caller) {
 	$('.gate-container.selected').removeClass('selected').addClass('unselected');
 	$(caller).removeClass('unselected').addClass('selected');
 	selectedType = $(caller).attr('gate-type');
 	console.log('gate-type: ' + selectedType);
 }
 
-function clearSelectedType(){
+function clearSelectedType() {
 	$('.gate-container.selected').removeClass('selected').addClass('unselected');
 	selectedType = 'none';
 	$('#canvas .gate-temporary').remove();
 }
 
-function connectGates(tx, rx){
+function pathAppend(caller, tarX, tarY) {
+	var d = $(curPath).attr('d');
+	console.log(curX, curY, tarX, tarY);
+	curPath.attr('d', d + ' H ' + parseInt((curX + tarX) / 16) * 8 + ' V ' + tarY + ' H ' + tarX);
+	curX = tarX;
+	curY = tarY;
+}
 
-	var txID = $(tx).attr('gate-id');
-	var txType = $(tx).attr('gate-type');
-	var rxID = $(rx).attr('gate-id');
-	var rxType = $(rx).attr('gate-type');
-	
-	var x1 = parseInt($(tx).attr('x')) + gateWidth * 0.9437;
-	var y1 = parseInt($(tx).attr('y')) + gateHeight / 2;
-	var x2 = parseInt($(rx).attr('x')) + gateWidth * 0.0562;
-	var y2 = parseInt($(rx).attr('y')) + gateHeight / 2;
-	
-	if (rxType == 'inp') {
+function connectGates(caller) {
+	var inp = $(curPath).attr('inp');
+	var id = $(caller).attr('gate-id');
+	var type = $(caller).attr('gate-type');
+	var x = parseInt($(caller).attr('x')) + gateWidth * 0.0562;
+	var y = parseInt($(caller).attr('y')) + gateHeight / 2;
+	if (type == 'inp') {
 		alertError('Target gate has no inputs');
-		console.log('gate ' + rxID + ' has no inputs');
 		return;
-	} else if (rxType == 'not' || rxType == 'out') {
-		if ($(rx).attr('input-1') != 0) {
+	} else if (type == 'not' || type == 'out') {
+		if ($(caller).attr('inp-1') != 0) {
 			alertError('Target gate has no free inputs');
-			console.log('input of gate ' + rxID + ' is full');
 			return;
 		}
-		$(rx).attr('input-1', txID);
+		$(caller).attr('inp-1', inp);
 	} else {
-		if ($(rx).attr('input-1') == 0) {
-			$(rx).attr('input-1', txID);
-			y2 = parseInt($(rx).attr('y')) + gateHeight * 0.3;
-		} else if ($(rx).attr('input-2') == 0) {
-			$(rx).attr('input-2', txID);
-			y2 = parseInt($(rx).attr('y')) + gateHeight * 0.7;
+		if ($(caller).attr('inp-1') == 0) {
+			$(caller).attr('inp-1', inp);
+			y = parseInt($(caller).attr('y')) + gateHeight * 0.3;
+		} else if ($(caller).attr('inp-2') == 0) {
+			$(caller).attr('inp-2', inp);
+			y = parseInt($(caller).attr('y')) + gateHeight * 0.7;
 		} else {
 			alertError('Target gate has no free inputs');
-			console.log('input of gate ' + rxID + ' is full');
 			return;
 		}
 	}
-	
+	pathAppend(curPath, x, y);
+	$(curPath).attr('out', id);
+	curPath = null;	
+}
+
+function selectGate(caller) {
+	var id = $(caller).attr('gate-id');
+	curX = parseInt($(caller).attr('x')) + gateWidth * 0.9437;
+	curY = parseInt($(caller).attr('y')) + gateHeight / 2;
 	d3.select('#canvas').append('path')
-		.attr('d', 'M ' + x1 + ' ' + y1 + ' H ' + (x1 + x2) / 2 + ' V ' + y2 + ' H ' + x2)
+		.attr('class', 'wire')
+		.attr('d', 'M ' + curX + ' ' + curY)
 		.attr('stroke', 'black')
 		.attr('stroke-width', '1.25')
 		.attr('fill', 'none')
-		.attr('input', txID)
-		.attr('output', rxID);
-	console.log('connect ' + txID + '->' + rxID);
-	
+		.attr('inp', id)
+		.attr('out', 0);
+	curPath = $('#canvas .wire[inp="' + id + '"][out="0"]');
 }
 
-function selectGate(caller){
-	$('#canvas .gate.selected').removeClass('selected').addClass('unselected');
-	$(caller).removeClass('unselected').addClass('selected');
-	selectedGate = $(caller).attr('gate-id');
-	console.log('gate-id: ' + selectedGate);
+function removeGate(caller) {
+	var id = $(caller).attr('gate-id');
+	$('#canvas .wire').each(function(index) {
+		var inp = $(this).attr('inp');
+		var out = $(this).attr('out');
+		if (inp == id || out == id) {
+			var tar = $('#canvas .gate[gate-id="' + out + '"]');
+			if ($(tar).attr('inp-1') == inp) {
+				$(tar).attr('inp-1', 0);
+			}
+			if ($(tar).attr('inp-2') == inp) {
+				$(tar).attr('inp-2', 0);
+			}
+			$(this).remove();
+		}
+	});
+	$(caller).remove();
 }
 
-function clearSelectedGate(){
-	$('#canvas .gate.selected').removeClass('selected').addClass('unselected');
-	selectedGate = 0;
+function clearSelectedGate() {
+	if (curPath != null) {
+		$(curPath).remove();
+		curPath = null;
+	}
+	$('#canvas .wire-temporary').remove();
 }
 
-function toggleGate(caller){
-	if ($(caller).attr('gate-type') == 'inp'){
+function toggleGate(caller) {
+	if ($(caller).attr('gate-type') == 'inp') {
 		$(caller).attr('this-state', $(caller).attr('this-state') == 'false');
 		$(caller).attr('next-state', $(caller).attr('next-state') == 'false');
 		console.log('switched gate ' + $(caller).attr('gate-id') + ' to ' + $(caller).attr('this-state'));
 	}
 }
 
-function updateScrollPos(event) {
-    $('html').css('cursor', 'grabbing');
-    $(window).scrollTop($(window).scrollTop() + (clickY - event.pageY));
-	$(window).scrollLeft($(window).scrollLeft() + (clickX - event.pageX));
+function removeWire(caller) {
+	var inp = $(caller).attr('inp');
+	var out = $(caller).attr('out');
+	var tar = $('#canvas .gate[gate-id="' + out + '"]');
+	if (tar.attr('inp-1') == inp) {
+		tar.attr('inp-1', 0);
+	} else if (tar.attr('inp-2') == inp) {
+		tar.attr('inp-2', 0);
+	}
+	$(caller).remove();
 }
 
-$(document).ready(function(){
+$(document).ready(function() {
 	
-	$(window).scrollTop($('#canvas').height() / 2 - window.innerHeight / 2);
-	$(window).scrollLeft($('#canvas').width() / 2 - window.innerWidth / 2);
-	
-	$('#canvas').on({'mousemove': function(event){ // handle drag-scrolling on the canvas
-        clicked && updateScrollPos(event);
-    }, 'mousedown': function(event) {
-        clicked = true;
-        clickY = event.pageY;
-		clickX = event.pageX;
-    }, 'mouseup': function() {
-        clicked = false;
-        $('html').css('cursor', 'auto');
-    }});
-	
-	$(window).mousemove(function(event){
-		$('mouse-x').text(event.pageX - $('#canvas').width() / 2);
-		$('mouse-y').text(event.pageY - $('#canvas').height() / 2);
-	});
-	
-	$('#panel .gate-container').click(function(){
+	$('#panel .gate-container').click(function() {
 		selectType(this);
+		clearSelectedGate();
 	});
     
-	// draw a preview of a gate on the canvas
-    $('#canvas').mousemove(function(event){
-    	if (selectedType != 'none'){ 
+	// draw previews
+    $('#canvas').mousemove(function(event) {
+		var x = parseInt(event.pageX / 8) * 8;
+		var y = parseInt(event.pageY / 8) * 8;
+    	if (selectedType != 'none') { 
     		$('#canvas .gate-temporary').remove();
     		d3.select(this).append('image')
 				.attr('class', 'gate-temporary')
 				.attr('href', 'img/' + selectedType + '.svg')
-				.attr('x', parseInt(event.pageX / 8) * 8 - 35)
-				.attr('y', parseInt(event.pageY / 8) * 8 - 16)
+				.attr('x', x - 35)
+				.attr('y', y - 16)
 				.attr('width', '62px')
 				.attr('height', '34px');
-    	}
+    	} else if (curPath != null) {
+			$('#canvas .wire-temporary').remove();
+			d3.select(this).append('path')
+				.attr('class', 'wire-temporary')
+				.attr('d', 'M ' + curX + ' ' + curY + ' H ' + (curX + x) / 2 + ' V ' + y + ' H ' + x)
+				.attr('stroke', 'gray')
+				.attr('stroke-width', '1.25')
+				.attr('fill', 'none');
+		}
     });
     
 	// draw a new gate on the canvas
-	$('#canvas').click(function(event){
-		if (selectedType != 'none'){
+	$('#canvas').click(function(event) {
+		if (selectedType != 'none') {
 			var gate = d3.select(this).append('image')
 				.attr('href', 'img/' + selectedType + '.svg')
 				.attr('class', 'gate unselected no-contextmenu')
@@ -147,90 +166,82 @@ $(document).ready(function(){
 				.attr('height', '34px')
 				.attr('gate-type', selectedType)
 				.attr('gate-id', ++globalID)
-				.attr('input-1', 0)
-				.attr('input-2', 0)
+				.attr('inp-1', 0)
+				.attr('inp-2', 0)
 				.attr('this-state', false)
 				.attr('next-state', false);
 		}
 	});
-	
-	// prevent dragging
-	$('*').on('dragstart', function(event){
-		event.preventDefault();
+
+	$('#canvas #background').click(function(event) { // click on background
+		if (curPath != null) {
+			var x = parseInt(event.pageX / 8) * 8;
+			var y = parseInt(event.pageY / 8) * 8;
+			console.log(curX, curY, x, y);
+			pathAppend(curPath, x, y);
+			console.log(curX, curY, x, y);
+		}
 	});
 	
-	// prevent context menu
-	$('*').on('contextmenu', function(event) {
-		event.preventDefault();
-	});
-	
-	// clear selected type events
-	$(document).keydown(function(event){
-     	if (event.key == 'Escape'){
-        	clearSelectedType();
-        }
-    });
-	
-	// clear selected gate events
-	$('#canvas #background').click(function(){ // clear selected gate when clicking on the background
-		clearSelectedGate();
-	});
-	$('*').on('contextmenu', function(event) {
-		clearSelectedType();
-	});
-	
-	// modifier key events
-	$(document).keydown(function(event){
-     	if (event.key == 'Shift'){
-        	modifyFlag = true;
-        }
-    });
-    $(document).keyup(function(event){
-    	if (event.key == 'Shift'){
-    		modifyFlag = false;
-    	}
-    });
-	
-	// mouse events for gates on canvas
-	$('#canvas').on('mousedown', 'image', function(event){
+	// mousedown events for gates on canvas
+	$('#canvas').on('mousedown', '.gate', function(event) {
 		switch (event.which) {
 			case 1: // left mouse
-				if (selectedType == 'none'){
-					if (modifyFlag == true){ // shift + left mouse --> remove gate
-						var ID = $(this).attr('gate-id');
-						$('#canvas path').each(function(index){
-							var inputID = $(this).attr('input');
-							var outputID = $(this).attr('output');
-							if (inputID == ID || outputID == ID) {
-								var target = $('#canvas .gate[gate-id="' + outputID + '"]');
-								if ($(target).attr('input-1') == inputID){
-									$(target).attr('input-1', 0);
-								}
-								if ($(target).attr('input-2') == inputID){
-									$(target).attr('input-2', 0);
-								}
-								$(this).remove();
-							}
-						});
-						$(this).remove();
-					} else if (selectedGate == 0){ // no gate is selected --> select gate for wiring
+				if (selectedType == 'none') {
+					if (modifyFlag == true) {
+						removeGate(this);
+					} else if (curPath == null) {
 						selectGate(this);
-					} else { // there is already a selected gate --> connect that gate(tx) to this gate(rx)
-						connectGates($('#canvas .gate[gate-id="' + selectedGate + '"]'), this);
+					} else {
+						connectGates(this);
 						clearSelectedGate();
 					}
 				}
 				break;
-			case 3: // right mouse --> toggle gate
+			case 3:
 				toggleGate(this);
 				break;
 		}
 	});
 	
-	// scanner control ui updater
-	$('#refresh-rate-display').text($('#refresh-rate').val() + 'Hz');
-	$('#refresh-rate').on('input', function(){
-		$('#refresh-rate-display').text(this.value + 'Hz');
+	// mousedown events for wires on canvas
+	$('#canvas').on('mousedown', '.wire', function(event) {
+		switch (event.which) {
+			case 1: // left mouse
+				if (modifyFlag == true) {
+					removeWire(this);
+				}
+				break;
+		}
 	});
+	
+	// dragging events
+	$('*').on('dragstart', function(event) {
+		event.preventDefault();
+	});
+	
+	// context menu events
+	$('*').on('contextmenu', function(event) {
+		event.preventDefault();
+		clearSelectedType();
+		clearSelectedGate();
+	});
+	
+	// keydown events
+	$(document).keydown(function(event) {
+     	if (event.key == 'Escape') {
+        	clearSelectedType();
+			clearSelectedGate();
+        } else if (event.key == 'Shift') {
+        	modifyFlag = true;
+        }
+    });
+
+	// keyup events
+    $(document).keyup(function(event) {
+    	if (event.key == 'Shift') {
+    		modifyFlag = false;
+    	}
+    });
 	
 });
