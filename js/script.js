@@ -4,6 +4,7 @@ const gateHeight = 40;
 var globalID = 0;
 
 function clearEvents() {
+	updateStorage()
 	// typeSelect
 	$('#canvas').off('mousemove');
 	$('.gate-container.selected')
@@ -237,7 +238,29 @@ function keydownEvents(event) {
 	}
 }
 
+function updateStorage() {
+	localStorage.setItem('canvas', $('#canvas').html());
+	console.log(localStorage.getItem('canvas'));
+	console.log('Updated storage');
+}
+
+function loadStorage() {
+	if (localStorage.getItem('canvas') != null) {
+		console.log('Loading from storages');
+		d3.select('#canvas').html(localStorage.getItem('canvas'));
+		console.log(localStorage.getItem('canvas'));
+	} else {
+		console.log('Storage not found');
+	}
+}
+
+function clearStorage() {
+	localStorage.clear();
+	console.log('Cleared storage');
+}
+
 $(document).ready(function() {
+	loadStorage();
 	$(document).on('keydown', keydownEvents);
 	$('#panel .gate-container').on('click', typeSelect);
 	$('#canvas').on('mouseup', '.gate', gateClick);
