@@ -7,7 +7,7 @@ function startScanner(){
 		var refreshRate = $('#refresh-rate').val();
 		$('#refresh-rate').attr('disabled','disabled');
 		scannerInterval = setInterval(scan, 1000 / refreshRate);
-		alertMessage('Scanner is now running');
+		alertMessage('Scanner is <b>running</b>');
 	}
 }
 
@@ -15,7 +15,15 @@ function stopScanner(){
 	clearInterval(scannerInterval);
 	$('#refresh-rate').removeAttr('disabled');
 	scannerRunning = false;
-	alertMessage('Scanner has stopped');
+	alertMessage('Scanner has <b>stopped</b>');
+}
+
+function toggleScanner() {
+	if (scannerRunning == false) {
+		startScanner();
+	} else {
+		stopScanner();
+	}
 }
 
 function probe(gateID){ // get current output of gate
@@ -26,7 +34,7 @@ function probe(gateID){ // get current output of gate
 	}
 }
 
-function scan(){ // go one iteration forward in the simulation
+function scan() { // go one iteration forward in the simulation
 	$('#canvas .gate').each(function(index){
 		var type = $(this).attr('gate-type');
 		var ID = $(this).attr('gate-id');

@@ -1,5 +1,5 @@
-const gateWidth = 62;
-const gateHeight = 34;
+const gateWidth = 72;
+const gateHeight = 40;
 
 var globalID = 0;
 
@@ -17,6 +17,25 @@ function clearEvents() {
 	$('#canvas').off('mouseup', '.gate');
 	$('#canvas').on('mouseup', '.gate', gateClick);
 	$('#canvas .wire-temp').remove();
+	// re-add lost default events
+	$('#canvas').on({
+		'mousemove': function (event) {
+			clicked && updateScrollPos(event);
+		},
+		'mousedown': function (event) {
+			clicked = true;
+			clickY = event.pageY;
+			clickX = event.pageX;
+		},
+		'mouseup': function () {
+			clicked = false;
+			$('html').css('cursor', 'auto');
+		}
+	});
+	$(window).mousemove(function (event) {
+		$('mouse-x').text(event.pageX - $('#canvas').width() / 2);
+		$('mouse-y').text(event.pageY - $('#canvas').height() / 2);
+	});
 }
 
 function snap(value) {
@@ -39,8 +58,8 @@ function typeSelect(event) {
 			.append('image')
 			.attr('class', 'gate-temp')
 			.attr('href', 'img/' + type + '.svg')
-			.attr('x', snap(event.pageX) - 35)
-			.attr('y', snap(event.pageY) - 16)
+			.attr('x', snap(event.pageX) - gateWidth / 2)
+			.attr('y', snap(event.pageY) - gateHeight / 2)
 			.attr('width', gateWidth + 'px')
 			.attr('height', gateHeight + 'px');
 	});
@@ -50,8 +69,8 @@ function typeSelect(event) {
 			.append('image')
 			.attr('class', 'gate')
 			.attr('href', 'img/' + type + '.svg')
-			.attr('x', snap(event.pageX) - 35)
-			.attr('y', snap(event.pageY) - 16)
+			.attr('x', snap(event.pageX) - gateWidth / 2)
+			.attr('y', snap(event.pageY) - gateHeight / 2)
 			.attr('width', gateWidth + 'px')
 			.attr('height', gateHeight + 'px')
 			.attr('gate-type',type)
@@ -68,8 +87,8 @@ function drawLine(event) {
 	clearEvents();
 	var inp = $(event.currentTarget).attr('gate-id');
 	var out = 0;
-    var curX = parseInt($(event.currentTarget).attr('x')) + gateWidth * 0.9437;
-    var curY = parseInt($(event.currentTarget).attr('y')) + gateHeight / 2;
+    var curX = snap(parseInt($(event.currentTarget).attr('x')) + gateWidth);
+    var curY = snap(parseInt($(event.currentTarget).attr('y')) + gateHeight / 2);
     d3
         .select('#canvas')
         .append('path')
@@ -93,8 +112,8 @@ function drawLine(event) {
 		console.log(event);
 		var out = $(event.currentTarget).attr('gate-id');
 		var type = $(event.currentTarget).attr('gate-type');
-		var tarX = parseInt($(event.currentTarget).attr('x')) + gateWidth * 0.0562;
-		var tarY = parseInt($(event.currentTarget).attr('y')) + gateHeight / 2;
+		var tarX = snap(parseInt($(event.currentTarget).attr('x'))) + 8;
+		var tarY = snap(parseInt($(event.currentTarget).attr('y')) + gateHeight / 2);
 		if (type == 'inp') {
 			alertError('Target gate has no inputs');
 			clearEvents();
@@ -109,10 +128,10 @@ function drawLine(event) {
 		} else {
 			if ($(event.currentTarget).attr('inp-1') == 0) {
 				$(event.currentTarget).attr('inp-1', inp);
-				tarY = parseInt($(event.currentTarget).attr('y')) + gateHeight * 0.3;
+				tarY = snap(parseInt($(event.currentTarget).attr('y')) + gateHeight * 0.3);
 			} else if ($(event.currentTarget).attr('inp-2') == 0) {
 				$(event.currentTarget).attr('inp-2', inp);
-				tarY = parseInt($(event.currentTarget).attr('y')) + gateHeight * 0.7;
+				tarY = snap(parseInt($(event.currentTarget).attr('y')) + gateHeight * 0.7);
 			} else {
 				alertError('Target gate has no free inputs');
 				clearEvents();
@@ -135,7 +154,7 @@ function drawLine(event) {
 			.select('#canvas')
 			.append('path')
 			.attr('class', 'wire-temp')
-			.attr('d', 'M ' + curX + ' ' + curY + ' H ' + (curX + tarX) / 2 + ' V ' + tarY + ' H ' + tarX)
+			.attr('d', 'M ' + curX + ' ' + curY + ' H ' + snap((curX + tarX) / 2) + ' V ' + tarY + ' H ' + tarX)
 			.attr('stroke', 'gray')
 			.attr('stroke-width', '1.25')
 			.attr('fill', 'none');
@@ -143,6 +162,7 @@ function drawLine(event) {
 }
 
 function removeGate(event) {
+	clearEvents();
     var id = $(event.currentTarget).attr('gate-id');
     $('#canvas .wire').each(function (index) {
         var inp = $(this).attr('inp');
@@ -162,6 +182,7 @@ function removeGate(event) {
 }
 
 function toggleGate(event) {
+	clearEvents();
 	if ($(event.currentTarget).attr('gate-type') == 'inp') {
 		$(event.currentTarget).attr('state', $(event.currentTarget).attr('state') == 'false');
 	}
@@ -184,6 +205,7 @@ function gateClick(event) {
 }
 
 function removeWire(event) {
+	clearEvents();
 	var inp = $(event.currentTarget).attr('inp');
     var out = $(event.currentTarget).attr('out');
     var tar = $('#canvas .gate[gate-id="' + out + '"]');
@@ -207,15 +229,27 @@ function wireClick(event) {
 	}
 }
 
+function keydownEvents(event) {
+	clearEvents();
+	var keyCode = event.originalEvent.code;
+	if (keyCode == 'Space') {
+		toggleScanner();
+	}
+}
+
 $(document).ready(function() {
-	$(document).on('keydown', clearEvents);
+	$(document).on('keydown', keydownEvents);
 	$('#panel .gate-container').on('click', typeSelect);
 	$('#canvas').on('mouseup', '.gate', gateClick);
 	$('#canvas').on('mouseup', '.wire', wireClick);
 	$('*').on('dragstart', function (event) {
+		// clearEvents();
 		event.preventDefault();
 	});
 	$('*').on('contextmenu', function (event) {
+		clearEvents();
 		event.preventDefault();
 	});
+	// prevent middle click scrolling - https://stackoverflow.com/a/5136883
+	$('body').mousedown(function(e){if(e.button==1)return false});
 });
