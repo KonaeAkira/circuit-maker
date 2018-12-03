@@ -274,5 +274,5 @@ $(document).ready(function() {
 		event.preventDefault();
 	});
 	// prevent middle click scrolling - https://stackoverflow.com/a/5136883
-	$('body').mousedown(function(e){if(e.button==1)return false});
+	$('body').mousedown(function(e) {if(e.button==1)return false});
 });

@@ -1,8 +1,8 @@
 var scannerInterval;
 var scannerRunning = false;
 
-function startScanner(){
-	if (scannerRunning == false){
+function startScanner() {
+	if (scannerRunning == false) {
 		scannerRunning = true;
 		var refreshRate = $('#refresh-rate').val();
 		$('#refresh-rate').attr('disabled','disabled');
@@ -11,7 +11,7 @@ function startScanner(){
 	}
 }
 
-function stopScanner(){
+function stopScanner() {
 	clearInterval(scannerInterval);
 	$('#refresh-rate').removeAttr('disabled');
 	scannerRunning = false;
@@ -26,7 +26,7 @@ function toggleScanner() {
 	}
 }
 
-function probe(gateID){ // get current output of gate
+function probe(gateID) { // get current output of gate
 	if (gateID == 0) {
 		return false;
 	} else {
@@ -35,36 +35,36 @@ function probe(gateID){ // get current output of gate
 }
 
 function scan() { // go one iteration forward in the simulation
-	$('#canvas .gate').each(function(index){
+	$('#canvas .gate').each(function(index) {
 		var type = $(this).attr('gate-type');
 		var ID = $(this).attr('gate-id');
 		var inputOne = $(this).attr('inp-1');
 		var inputTwo = $(this).attr('inp-2');
-		if (type == 'or'){
+		if (type == 'or') {
 			$(this).attr('buffer', probe(inputOne) | probe(inputTwo));
-		} else if (type == 'nor'){
+		} else if (type == 'nor') {
 			$(this).attr('buffer', !probe(inputOne) & !probe(inputTwo));
-		} else if (type == 'and'){
+		} else if (type == 'and') {
 			$(this).attr('buffer', probe(inputOne) & probe(inputTwo));
-		} else if (type == 'nand'){
+		} else if (type == 'nand') {
 			$(this).attr('buffer', !(probe(inputOne) & probe(inputTwo)));
-		} else if (type == 'xor'){
+		} else if (type == 'xor') {
 			$(this).attr('buffer', probe(inputOne) ^ probe(inputTwo));
-		} else if (type == 'xnor'){
+		} else if (type == 'xnor') {
 			$(this).attr('buffer', !probe(inputOne) ^ probe(inputTwo));
-		} else if (type == 'not'){
+		} else if (type == 'not') {
 			$(this).attr('buffer', !probe(inputOne));
-		} else if (type == 'out'){
+		} else if (type == 'out') {
 			$(this).attr('buffer', probe(inputOne));
 		}
 	});
-	$('#canvas .gate').each(function(index){
-		if ($(this).attr('gate-type') != 'inp'){
+	$('#canvas .gate').each(function(index) {
+		if ($(this).attr('gate-type') != 'inp') {
 			$(this).attr('state', $(this).attr('buffer') == '1' || $(this).attr('buffer') == 'true');
 		}
 	});
-	$('#canvas path').each(function(index){
-		if (probe($(this).attr('inp'))){
+	$('#canvas path').each(function(index) {
+		if (probe($(this).attr('inp'))) {
 			$(this).addClass('active');
 		} else {
 			$(this).removeClass('active');

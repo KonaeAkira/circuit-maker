@@ -51,4 +51,8 @@ $(document)
             $('mouse-x').text(event.pageX - $('#canvas').width() / 2);
             $('mouse-y').text(event.pageY - $('#canvas').height() / 2);
         });
+		$('#refresh-rate-display').text($('#refresh-rate').val() + 'Hz');
+		$('#refresh-rate').on('input', function(){
+			$('#refresh-rate-display').text(this.value + 'Hz');
+		});
     });
